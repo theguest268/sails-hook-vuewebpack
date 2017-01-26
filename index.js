@@ -7,7 +7,6 @@ var webpack = require('webpack');
 var webpackDevServer = require('webpack-dev-server');
 var CleanWebpackPlugin = require('clean-webpack-plugin');
 var CopyWebpackPlugin = require('copy-webpack-plugin');
-var LinkerWebpackPlugin = require('linker-webpack-plugin');
 
 module.exports = function (sails) {
 
@@ -16,11 +15,11 @@ module.exports = function (sails) {
     defaults: {
       __configKey__: {
         config: {
-          entry: [path.resolve(__dirname, '../../src/main.js')],
+          entry: [path.resolve(__dirname, '../../assets/src/main.js')],
           output: {
             path: path.resolve(__dirname, '../../.tmp/public/'),
             publicPath: '/',
-            filename: 'js/build/bundle.js'
+            filename: 'js/bundle.js'
           },
           resolveLoader: {
             root: path.join(__dirname, '../../node_modules')
@@ -36,14 +35,9 @@ module.exports = function (sails) {
               from: path.resolve(__dirname, '../../src/assets/'),
               to: 'assets'
             }]),
-            new LinkerWebpackPlugin({
-              entry: 'src/index.html',
-              output: '.tmp/public/index.html',
-              data: {
-                scripts: (process.env.NODE_ENV === 'development')
-                  ? '<script src="//localhost:3000/js/build/bundle.js"></script>'
-                  : '<script src="js/build/bundle.js"></script>'
-              }
+            new CleanWebpackPlugin(['src'], {
+                root: path.join(__dirname, '../../.tmp/public'),
+                verbose: false
             })
           ],
           module: {
@@ -56,6 +50,13 @@ module.exports = function (sails) {
                 test: /\.js$/,
                 loader: 'babel',
                 exclude: /node_modules/
+              },
+              {
+                test: /\.(png|jpg|gif|svg)$/,
+                loader: 'file',
+                query: {
+                  name: '[name].[ext]?[hash]'
+                }
               }
             ]
           },
@@ -66,7 +67,7 @@ module.exports = function (sails) {
           devtool: '#eval-source-map'
         },
         devServerConfig: {
-          filename: "js/build/bundle.js",
+          filename: "js/bundle.js",
           proxy: {
             "*": "http://localhost:1337"
           },
