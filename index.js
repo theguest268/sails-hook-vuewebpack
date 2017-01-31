@@ -15,17 +15,16 @@ module.exports = function (sails) {
         defaults: {
             __configKey__: {
                 config: {
-                    entry: [path.resolve(__dirname, '../../assets/src/main.js')],
+                    entry: {
+                        app: [path.resolve(__dirname, '../../assets/src/main.js')]
+                    },
                     output: {
                         path: path.resolve(__dirname, '../../.tmp/public/'),
                         publicPath: '/',
                         filename: 'js/bundle.js'
                     },
-                    resolveLoader: {
-                        root: path.join(__dirname, '../../node_modules')
-                    },
                     plugins: [
-                        new webpack.optimize.OccurenceOrderPlugin(),
+                        new webpack.optimize.OccurrenceOrderPlugin(),
                         new webpack.NoErrorsPlugin(),
                         new CleanWebpackPlugin(['public'], {
                             root: path.join(__dirname, '../../.tmp'),
@@ -39,17 +38,17 @@ module.exports = function (sails) {
                                 { from: 'assets/js', to: 'js'},
                                 { from: 'assets/styles', to: 'styles'}
                             ]
-                        ),
+                        )
                     ],
                     module: {
-                        loaders: [
+                        rules: [
                             {
                                 test: /\.vue$/,
                                 loader: 'vue'
                             },
                             {
                                 test: /\.js$/,
-                                loader: 'babel',
+                                loader: 'babel-loader',
                                 exclude: /node_modules/
                             },
                             {
@@ -89,11 +88,11 @@ module.exports = function (sails) {
             // Configure webpack dev server
             if (process.env.NODE_ENV === 'development') {
                 config.output.publicPath = 'http://localhost:3000/';
-                config.entry.unshift("webpack-dev-server/client?http://0.0.0.0:3000/", "webpack/hot/only-dev-server");
+                config.entry.app.unshift("webpack-dev-server/client?http://0.0.0.0:3000/", "webpack/hot/only-dev-server");
                 config.plugins.unshift(new webpack.HotModuleReplacementPlugin());
             }
             else {
-                config.plugins.unshift(new webpack.optimize.UglifyJsPlugin({ compress: { warnings: false }}));
+                config.plugins.unshift(new webpack.optimize.UglifyJsPlugin({ sourcemap: true, compress: { warnings: false }}));
             }
 
             // Create Webpack compiler
